@@ -104,11 +104,17 @@ body:not(.dark-mode) .component_imageviewer .component_image_container .fullscre
 }
 @media screen and (max-width: 580px) {
     .component_imageviewer component-menubar button .component_icon[alt="info"] {
-        display: none;
+        display: block;
     }
     .component_imageviewer .images_aside.open {
-        width: 0px;
-        min-width: 0;
+        position: fixed;
+        inset: 0;
+        width: 100vw;
+        min-width: 100vw;
+        height: 100dvh;
+        box-sizing: border-box;
+        overflow-y: auto;
+        z-index: 1000;
     }
 }
 .component_imageviewer .images_aside.open [data-bind="body"] {
