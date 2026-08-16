@@ -217,22 +217,35 @@ export function init() {
 const extractExif = ($img) => new Promise((resolve) => window.EXIF.getData($img, function() {
     const metadata = window.EXIF.getAllTags($img);
     const to_date = (str = "") => {
-        if (str === "") return null;
-        const digits = str.split(/[ :]/).map((digit) => parseInt(digit));
-        return new Date(
-            digits[0] || 0,
-            digits[1] || 0,
-            digits[2] || 0,
-            digits[3] || 0,
-            digits[4] || 0,
-            digits[5] || 0,
-        );
+        if (typeof str !== "string") return null;
+        const match = str.trim().match(/^(\d{4}):(\d{2}):(\d{2})(?:[ T](\d{2}):(\d{2}):(\d{2}))?/);
+        if (!match) return null;
+
+        const year = parseInt(match[1]);
+        const month = parseInt(match[2]);
+        const day = parseInt(match[3]);
+        const hour = parseInt(match[4] || "0");
+        const minute = parseInt(match[5] || "0");
+        const second = parseInt(match[6] || "0");
+
+        if (year < 1 || month < 1 || month > 12 || day < 1 || day > 31 ||
+            hour > 23 || minute > 59 || second > 59) return null;
+
+        const date = new Date(year, month - 1, day, hour, minute, second);
+        if (date.getFullYear() !== year || date.getMonth() !== month - 1 ||
+            date.getDate() !== day || date.getHours() !== hour ||
+            date.getMinutes() !== minute || date.getSeconds() !== second) return null;
+        return date;
     };
+    const date = [
+        metadata["DateTimeOriginal"],
+        metadata["DateTimeDigitized"],
+        metadata["DateTime"],
+        metadata["GPSDateStamp"],
+    ].map(to_date).find((value) => value !== null) || null;
+
     resolve({
-        date: to_date(
-            metadata["DateTime"] || metadata["DateTimeDigitized"] ||
-                metadata["DateTimeOriginal"] || metadata["GPSDateStamp"],
-        ),
+        date,
         location: (metadata["GPSLatitude"] && metadata["GPSLongitude"] && [
             [
                 metadata["GPSLatitude"][0], metadata["GPSLatitude"][1],
