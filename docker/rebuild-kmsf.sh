@@ -35,6 +35,7 @@ docker build \
     -t "${IMAGE}:latest" \
     --build-arg "GIT_REPO=${REPO_URL}" \
     --build-arg "GIT_BRANCH=${BRANCH}" \
+    --build-arg "GIT_COMMIT=${COMMIT}" \
     -f docker/Dockerfile.kmsf .
 
 echo "== Validando UID/GID da imagem =="
